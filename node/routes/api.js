@@ -1,6 +1,7 @@
 const express = require('express');
 const formidable = require('formidable');
 var fs = require('fs');
+const influx = require("../influxConnector");
 const router = express.Router();
 
 /* GET home page. */
@@ -21,7 +22,7 @@ router.post('/upload', function (req, res) {
     });
     form.on('file', function (field, file) {
         console.log("File uploaded: " + file.name);
-        //fs.rename(file.path, form.uploadDir + "/asd");
+        influx.upload(file);
     });
     form.on('error', function (err) {
         res.sendStatus(500);

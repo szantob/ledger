@@ -1,0 +1,9 @@
+[
+  {
+    "name": "test",
+    "active": true,
+    "key": "-----BEGIN PUBLIC KEY-----\nMIGeMA0GCSqGSIb3DQEBAQUAA4GMADCBiAKBgHrDqcG8/uSK7oCi1om6lTJEDKQz\naar+TP9D1nNbp5gZvqfN3q2EKdXPF0Tc0Stomvh8KCLYfb00S6EL/UDrvnXcsWTs\nAvbcOXn4e2NXIzIhS53Q1EjGxqXT2qiDJb/Y8S/pCEAJk+Ydo0LTm/puTrU49bS3\nGJrdVpaYNQB1lnNXAgMBAAE=\n-----END PUBLIC KEY-----",
+    "firstname": "Elek",
+    "lastname": "Teszt"
+  }
+]

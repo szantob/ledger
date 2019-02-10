@@ -6,7 +6,7 @@ dataRoot.signer = null;
 dataRoot.signature = null;
 
 var activeKey = null;
-
+var signer = null;
 
 const openFile = function (event) {
     const input = event.target;
@@ -35,6 +35,7 @@ const openKey = function (event) {
     reader.onload = function () {
         var keyRoot = JSON.parse(reader.result);
         activeKey = pki.privateKeyFromPem(keyRoot.key.toString());
+        signer = keyRoot.name;
         console.log("Key parse success");
         console.log("Username: " + keyRoot.name);
     };
@@ -103,6 +104,7 @@ const sign = function () {
     }
     const md = forge.md.sha1.create();
     md.update(dataRoot.hash, 'utf8');
+    dataRoot.signer = signer;
     dataRoot.signature = activeKey.sign(md).toString('ascii');
 
     var file = new Blob([JSON.stringify(dataRoot)], {type: 'text/json'});
