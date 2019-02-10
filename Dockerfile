@@ -18,7 +18,7 @@ COPY ./sh/setup.sh ./
 COPY ./sh/run.sh ./
 COPY ./grafana/* ./
 #Run setup.sh
-RUN ./setup.sh
+#RUN ./setup.sh
 RUN rm ./setup.sh;
 
 #Setup NodeJs
