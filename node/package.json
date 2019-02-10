@@ -1,0 +1,25 @@
+{
+  "name": "ledgerapp",
+  "version": "0.0.0",
+  "private": true,
+  "scripts": {
+    "start": "node ./bin/www",
+    "devstart": "nodemon ./bin/www"
+  },
+  "dependencies": {
+    "cookie-parser": "~1.4.3",
+    "debug": "~2.6.9",
+    "express": "~4.16.0",
+    "morgan": "~1.9.0",
+    "consolidate": "^0.15.1",
+    "swig": "^1.4.2",
+    "influxdb-nodejs": "^2.11.0",
+    "formidable": "^1.2.1",
+    "node-forge": "^0.8.0",
+    "express-validator": "^5.3.1",
+    "fs": "^0.0.1-security"
+  },
+  "devDependencies": {
+    "nodemon": "^1.14.11"
+  }
+}
