@@ -5,8 +5,6 @@ services:
 
 before_install:
   - docker build --tag ledger .
-  - docker run -d -p 8080:8080 -p 3000:3000 --name ledger ledger
 
 script:
-  - docker exec -it ledger bash
-  - exit
+  - docker run -d -p 8080:8080 -p 3000:3000 --name ledger ledger
