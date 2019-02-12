@@ -1,0 +1,51 @@
+{
+ "measurement":[
+  "main",
+  "test"
+ ],
+ "fieldSchema":{
+  "osszeg":"i",
+  "bizszam":"s",
+  "jogcim":"s"
+ },
+ "tagSchema":{
+  "forras":[
+   "Központi állami támogatás",
+   "Nem költségvetési támogatás",
+   "Államkincstári forrás"
+  ],
+  "deviza":[
+   "HUF",
+   "EUR",
+   "USD"
+  ],
+  "ktghely":[
+   "politikai"
+  ],
+  "fkvnev":[
+   "Anyagköltség",
+   "Egy éven belül elhasználódó anyagi eszközök költségei",
+   "100e Ft alatti eszköz.elsz.écs.",
+   "Nyomtatvány, irodaszer költség",
+   "Egyéb anyagköltség",
+   "Időszakos bérleti díjak",
+   "Egyéb bérleti díjak",
+   "Szállítás, rakodás költsége",
+   "Sokszorosítás és nyomda költsége",
+   "Hirdetés, reklám ktg.",
+   "Postaköltség",
+   "Rendezvény egyéb szolgáltatás",
+   "Egyéb szolgáltatás",
+   "Adott előlegek",
+   "Megbízási díj",
+   "Saját felhasználású készletek",
+   "Oktatás",
+   "Belföldi uti-és kiküldetési ktg.",
+   "Gépkocsi költségtérítés",
+   "Reprezentáció adóköteles",
+   "SZJA Természetbeni",
+   "Egészségügyi hozzájárulás",
+   "Vissza nem igényelhető ÁFA"
+  ]
+ }
+}

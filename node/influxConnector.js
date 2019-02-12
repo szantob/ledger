@@ -33,24 +33,6 @@ function influxParse(data){
     return true;
 }
 
-function loginStatus(account, ip, type) {
-    client.write('login')
-        .tag({
-            type,
-        })
-        .field({
-            account,
-            ip,
-        })
-        .queue();
-
-}
-
-setInterval(() => {
-    loginStatus('vicanso', '127.0.0.1', 'vip');
-}, 5000);
-
-
 const influxProcess = function(dataRoot){
     const data = dataRoot.data;
     var recordNumber = 0;
@@ -65,7 +47,7 @@ const influxProcess = function(dataRoot){
             .catch(err => console.error(`sync write queue fail, ${err.message}`));
     }
     return true;
-}
+};
 const auth = function(data){
     const sha256 = forge.md.sha256.create();
     sha256.update(data.ledger + data.data);

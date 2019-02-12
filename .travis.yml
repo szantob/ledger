@@ -1,10 +1,9 @@
-language: ruby
-
 services:
   - docker
-
-before_install:
-  - docker build --tag ledger .
-
-script:
-  - docker run -d -p 8080:8080 -p 3000:3000 --name ledger ledger
+jobs:
+  include:
+    - stage: "Tests"                # naming the Tests stage
+    - name: "Node Test"            # names the first Tests stage job
+    - script: ./travis_tests/node.sh
+    - name: "Docker Test"     # names the second Tests stage job
+    - script: ./travis_tests/dockerizing.sh
