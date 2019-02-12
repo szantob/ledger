@@ -2,41 +2,70 @@ const influx = require('influxdb-nodejs');
 const fs = require('fs');
 const forge = require('node-forge');
 
-//const schema = JSON.parse(fs.readFileSync('./lib/schema.json', 'utf8'));
+const client = new influx("http://nodejs:"+passwd+"@localhost:8086/db_grafana");
+const schema = JSON.parse(fs.readFileSync('./lib/schema.json', 'utf8'));
 
 var passwd;
 fs.readFile("./keys/.pw_influx_nodejs", function(err, data) {
     if(err) return;
     passwd = data;
 });
-const client = new influx("http://nodejs:"+passwd+"@localhost:8086/db_grafana")
 
-function upload2(file){
-    data = JSON.parse(fs.readFileSync(files.file.path, 'utf8'));
-    console.log("Insert data to ", data.measurement);
+function influxParse(data){
     client.schema(data.measurement, schema.fieldSchema, schema.tagSchema, {
         stripUnknown: true,
     });
     for(var i=0;i<data.data.length;i++){
-        var d = new Date(data.data[i].date);
-        client.write(data.measurement)
-            .time(d.valueOf()*1000000)
+        var date = new Date(data.date);
+        client.write(data.ledger)
+            .time(date.valueOf()*1000000)
             .tag({
-                "forras": data.data[i].forras,
-                "deviza": data.data[i].deviza,
-                "fkvnev": data.data[i].fkvnev,
-                "ktghely":data.data[i].ktghely,
+                "forras": data.forras,
+                "deviza": data.deviza,
+                "fkvnev": data.fkvnev,
+                "ktghely":data.ktghely,
             }).field({
-            "bizszam":data.data[i].bizszam,
-            "jogcim": data.data[i].jogcim,
-            "osszeg": data.data[i].osszeg,
-        }).then(() =>{
-            console.info('write point success');
-        }).catch(console.error);
+            "bizszam":data.bizszam,
+            "jogcim": data.jogcim,
+            "osszeg": data.osszeg,
+        }).queue();
     }
     return true;
 }
 
+function loginStatus(account, ip, type) {
+    client.write('login')
+        .tag({
+            type,
+        })
+        .field({
+            account,
+            ip,
+        })
+        .queue();
+
+}
+
+setInterval(() => {
+    loginStatus('vicanso', '127.0.0.1', 'vip');
+}, 5000);
+
+
+const influxProcess = function(dataRoot){
+    const data = dataRoot.data;
+    var recordNumber = 0;
+    for(var i in data){
+        if(data[i] !== null) {
+            if(influxParse(data[i])) recordNumber++;
+        }
+    }
+    if(recordNumber > 0){
+        client.syncWrite()
+            .then(() => console.info('sync write queue success'))
+            .catch(err => console.error(`sync write queue fail, ${err.message}`));
+    }
+    return true;
+}
 const auth = function(data){
     const sha256 = forge.md.sha256.create();
     sha256.update(data.ledger + data.data);
@@ -71,7 +100,6 @@ const auth = function(data){
         return false;
     }
 };
-
 const upload = function(file){
     console.log("File processing");
     const data = JSON.parse(fs.readFileSync(file.path, 'utf8'));
@@ -79,11 +107,15 @@ const upload = function(file){
         console.log("Processing failed");
         return false;
     }else{
-        /*client.schema(data.measurement, schema.fieldSchema, schema.tagSchema, {
-            stripUnknown: true,
-        });*/
-        console.log("Pocessing susseccful");
-        return true;
+        const newRecords = influxProcess(data);
+        if(newRecords > 0){
+            console.log("Pocessing susseccful");
+            console.log("New records: " + newRecords);
+            return true;
+        }else{
+            console.log("No data found");
+            return false;
+        }
     }
 };
 

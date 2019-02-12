@@ -3,12 +3,14 @@ const path = require('path');
 const cookieParser = require('cookie-parser');
 const logger = require('morgan');
 const cons = require('consolidate');
+const proxy = require('express-http-proxy');
 
 const indexRouter = require('./routes/index');
 const editorRouter = require('./routes/editor');
 const manualRouter = require('./routes/manual');
 const adminRouter = require('./routes/admin');
 const apiRouter = require('./routes/api');
+
 
 const app = express();
 
@@ -26,6 +28,7 @@ app.use('/editor', editorRouter);
 app.use('/man', manualRouter);
 app.use('/admin', adminRouter);
 app.use('/api', apiRouter);
+app.use('/grafana',proxy("localhost:3000"));
 
 // catch 404 and forward to error handler
 app.use(function (req, res, next) {

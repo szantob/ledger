@@ -17,7 +17,8 @@
     "formidable": "^1.2.1",
     "node-forge": "^0.8.0",
     "express-validator": "^5.3.1",
-    "fs": "^0.0.1-security"
+    "fs": "^0.0.1-security",
+    "express-http-proxy": "^1.5.1"
   },
   "devDependencies": {
     "nodemon": "^1.14.11"
