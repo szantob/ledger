@@ -46,6 +46,7 @@
    "SZJA Természetbeni",
    "Egészségügyi hozzájárulás",
    "Vissza nem igényelhető ÁFA"
-  ]
+  ],
+  "signer": "*"
  }
 }

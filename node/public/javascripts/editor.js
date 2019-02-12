@@ -1,3 +1,5 @@
+const data = ledgerData();
+
 const dataRoot = {};
 dataRoot.ledger = null;
 dataRoot.data = [];
@@ -9,12 +11,14 @@ var activeKey = null;
 var signer = null;
 
 const setLedger = function(event){
+    //data.setLedger(event.valueOf().toString());  //TODO
     dataRoot.ledger = event.valueOf().toString();
 };
 const openFile = function (event) {
     const input = event.target;
     const reader = new FileReader();
     reader.onload = function () {
+        //data.appendJSON(reader.result);
         const root = JSON.parse(reader.result);
         console.log("File parseing...");
         console.log(root.data.length + " records parsed");
@@ -35,7 +39,7 @@ const openKey = function (event) {
     const pki = forge.pki;
     const reader = new FileReader();
     reader.onload = function () {
-        var keyRoot = JSON.parse(reader.result);
+        const keyRoot = JSON.parse(reader.result);
         activeKey = pki.privateKeyFromPem(keyRoot.key.toString());
         signer = keyRoot.name;
         console.log("Key parse success");
@@ -45,7 +49,7 @@ const openKey = function (event) {
 };
 const add = function(){
     if(!readRow()) alert("Hiányos bemenet")
-}
+};
 const readRow = function () {    //bugos az input
     var element = {};
     if((element.forras = $("#in_forras").val().toString()) === "") return false;

@@ -29,7 +29,11 @@ function influxParse(data,ledger){
             "bizszam":data.bizszam,
             "jogcim": data.jogcim,
             "osszeg": data.osszeg,
-        }).queue();
+        }).then(() =>{
+            console.info('write point success');
+            return true;
+        }).catch(console.error);
+        return success;
     }
     return true;
 }
