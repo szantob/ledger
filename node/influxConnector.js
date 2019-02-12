@@ -12,7 +12,7 @@ fs.readFile("./keys/.pw_influx_nodejs", function(err, data) {
 });
 
 function influxParse(data,ledger){
-    client.schema(data.ledger, schema.fieldSchema, schema.tagSchema, {
+    client.schema(ledger, schema.fieldSchema, schema.tagSchema, {
         stripUnknown: true,
     });
     console.log("Measurement: "+ledger);
