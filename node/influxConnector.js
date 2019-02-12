@@ -12,10 +12,10 @@ fs.readFile("./keys/.pw_influx_nodejs", function(err, data) {
 });
 
 function influxParse(data){
-    client.schema(data.measurement, schema.fieldSchema, schema.tagSchema, {
+    client.schema(data.ledger, schema.fieldSchema, schema.tagSchema, {
         stripUnknown: true,
     });
-    for(var i=0;i<data.data.length;i++){
+    for(var i=0;i<data.length;i++){
         var date = new Date(data.date);
         client.write(data.ledger)
             .time(date.valueOf()*1000000)
