@@ -15,6 +15,7 @@ function influxParse(data){
     client.schema(data.ledger, schema.fieldSchema, schema.tagSchema, {
         stripUnknown: true,
     });
+    console.log("Measurement: "+data.ledger);
     for(var i=0;i<data.length;i++){
         var date = new Date(data.date);
         client.write(data.ledger)
@@ -46,7 +47,7 @@ const influxProcess = function(dataRoot){
             .then(() => console.info('sync write queue success'))
             .catch(err => console.error(`sync write queue fail, ${err.message}`));
     }
-    return true;
+    return recordNumber;
 };
 const auth = function(data){
     const sha256 = forge.md.sha256.create();
