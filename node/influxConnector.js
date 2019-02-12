@@ -11,11 +11,11 @@ fs.readFile("./keys/.pw_influx_nodejs", function(err, data) {
     passwd = data;
 });
 
-function influxParse(data){
+function influxParse(data,ledger){
     client.schema(data.ledger, schema.fieldSchema, schema.tagSchema, {
         stripUnknown: true,
     });
-    console.log("Measurement: "+data.ledger);
+    console.log("Measurement: "+ledger);
     for(var i=0;i<data.length;i++){
         var date = new Date(data.date);
         client.write(data.ledger)
@@ -39,7 +39,7 @@ const influxProcess = function(dataRoot){
     var recordNumber = 0;
     for(var i in data){
         if(data[i] !== null) {
-            if(influxParse(data[i])) recordNumber++;
+            if(influxParse(data[i],dataRoot.ledger)) recordNumber++;
         }
     }
     if(recordNumber > 0){

@@ -32,7 +32,6 @@ const openFile = function (event) {
 };
 const openKey = function (event) {
     const input = event.target;
-    const rsa = forge.pki.rsa;
     const pki = forge.pki;
     const reader = new FileReader();
     reader.onload = function () {
