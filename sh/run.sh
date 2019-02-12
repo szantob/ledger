@@ -8,7 +8,7 @@ service grafana-server start
 
 #Start Node.js
 cd node
-npm start
+npm start > node.log
 
 #Wait for input
 read -p "Paused"
