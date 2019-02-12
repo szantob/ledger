@@ -8,6 +8,9 @@ dataRoot.signature = null;
 var activeKey = null;
 var signer = null;
 
+const setLedger = function(event){
+    dataRoot.ledger = event.valueOf().toString();
+};
 const openFile = function (event) {
     const input = event.target;
     const reader = new FileReader();
@@ -41,16 +44,19 @@ const openKey = function (event) {
     };
     reader.readAsText(input.files[0]);
 };
-const add = function () {    //bugos az input
+const add = function(){
+    if(!readRow()) alert("Hiányos bemenet")
+}
+const readRow = function () {    //bugos az input
     var element = {};
-    element.forras = $("#in_forras").val().toString();
-    element.datum = $("#in_datum").val().toString();
-    element.bizonyl = $("#in_bizonyl").val().toString();
-    element.jogcim = $("#in_jogcim").val().toString();
-    element.deviza = $("#in_deviza").val().toString();
-    element.osszeg = $("#in_osszeg").val().toString();
-    element.fkvnev = $("#in_fkvnev").val().toString();
-    element.ktghely = $("#in_ktghely").val().toString();
+    if((element.forras = $("#in_forras").val().toString()) === "") return false;
+    if((element.datum = $("#in_datum").val().toString()) === "") return false;
+    if((element.bizonyl = $("#in_bizonyl").val().toString()) === "") return false;
+    if((element.jogcim = $("#in_jogcim").val().toString()) === "") return false;
+    if((element.deviza = $("#in_deviza").val().toString()) === "") return false;
+    if((element.osszeg = $("#in_osszeg").val().toString()) === "") return false;
+    if((element.fkvnev = $("#in_fkvnev").val().toString()) === "") return false;
+    if((element.ktghely = $("#in_ktghely").val().toString()) === "") return false;
     dataRoot.data.push(element);
     insertRow(element, dataRoot.data.indexOf(element));
 };
@@ -70,6 +76,10 @@ const insertRow = function (element, index) {
 };
 
 const preview = function () {
+    if(!check()){
+        alert("Formátum hiba");
+        return;
+    }
     $("#d_editor").hide();
     $("#d_signer").show();
     $(".editor").hide();
@@ -91,6 +101,11 @@ const del = function (index) {
     dataRoot.data[index] = null;
     $("#row_" + index).hide();
 };
+const check = function(){
+    if(dataRoot.ledger === null) return false;
+    if(dataRoot.data.length === 0) return false;
+    return true;
+}
 const hash = function () {
     var md = forge.md.sha256.create();
     md.update(dataRoot.ledger + dataRoot.data);
