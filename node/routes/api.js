@@ -8,6 +8,11 @@ const router = express.Router();
 router.get('/ping', function (req, res, next) {
 
 });
+router.get('/schema',function (req,res,next) {
+    const JSONString = fs.readFileSync('./lib/schema.json', 'utf8');
+    res.setHeader('Content-Type', 'application/json');
+    res.send(JSONString).end();
+});
 router.post('/upload', function (req, res) {
     console.log("Upload start");
     var form = new formidable.IncomingForm();

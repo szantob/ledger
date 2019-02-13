@@ -1,11 +1,7 @@
-const ledgerData = function(){
-    const root = {};
+const ledgerData = function(dForge){
+    const forge = dForge;
+    const publ = {};
     const priv = {};
-
-    var forge = forge;
-    root.setDependencies = function(forgeD){
-        forge = forgeD;
-    };
 
     priv.ledgerName = null;
     priv.dataArray = [];
@@ -20,66 +16,72 @@ const ledgerData = function(){
         //TODO implement later
     };
 
-    root.setLedger = function(ledger){
+    publ.setLedger = function(ledger){
         priv.ledgerName = ledger;
     };
-    root.getLedger = function(){
+    publ.getLedger = function(){
         return priv.ledgerName;
     };
-    root.ledgerDataFromJSON = function(jsonString){
+    publ.ledgerDataFromJSON = function(jsonString){
         const dataRoot = JSON.parse(jsonString);
-        //TODO implement
-    };
-    root.appendJSON = function(jsonString){
-        if (priv.ledger == null) {
-            priv.ledger = appendRoot.ledger;
-        }
-        for (var i in appendRoot.data) {
-            const element = appendRoot.data[i];
-            priv.data.push(element);
-        }
-        return appendRoot.data.length; //TODO implement
+        if(dataRoot.ledgerName === null) return false;
+        if(dataRoot.data === null) return false;
 
+        if(dataRoot.ledgerName !== null) priv.ledgerName = dataRoot.ledgerName;
+        priv.dataArray = dataRoot.data;
+        priv.hash = null;
+        priv.signature = null;
+        priv.signer = null;
+        return true;
     };
-    root.addData = function(element){
-        priv.data.push(element);
+    publ.addData = function(element){
+        priv.dataArray.push(element);
         return priv.dataArray.indexOf(element)
     };
-    root.getData = function(id){
+    publ.getData = function(id){
         return priv.dataArray[id];
     };
-    root.nullData = function(id){
+    publ.nullData = function(id){
         priv.dataArray[id] = null;
     };
-    root.calculateHash = function(){
+    publ.hasData = function(){
+        return publ.dataLength() > 0;
+    };
+    publ.dataLength = function(){
+        return priv.dataArray.length;
+    };
+    publ.calculateHash = function(){
         const md = forge.md.sha256.create();
         md.update(valuesToString());
         priv.hash = md.digest().toHex();
         return priv.hash;
     };
-    root.signLedger = function(signer,keyString){
+    publ.signLedger = function(signer,keyString){
         const pki = forge.pki;
-        const md = forge.md.sha1.create();
+        const md = forge.md.sha256.create();
         priv.signer = signer;
         key = pki.privateKeyFromPem(keyString);
-        md.update(root.calculateHash(), 'utf8');
+        md.update(valuesToString(), 'utf8');
         priv.signature = key.sign(md).toString('ascii');
         return priv.signature;
     };
-    root.getSigner = function(){
+    publ.getSigner = function(){
         return priv.signer;
     };
-    root.verifySignature = function(key){
+    publ.verifySignature = function(key){
         const pki = forge.pki;
-        const md = forge.md.sha1.create();
-        md.update(root.calculateHash(), 'utf8');
+        const md = forge.md.sha256.create();
+        md.update(valuesToString(), 'utf8');
         return (key.verify(md.digest().bytes(), priv.signature));
     };
-    root.toString = function(){
+    publ.toString = function(){
         return JSON.stringify(priv);
     };
 
-    return root;
+    return publ;
 };
-
-module.exports = ledgerData();
+if(typeof module !== "undefined"){
+    if(typeof module.exports !== "undefined"){
+        module.exports = ledgerData;
+    }
+}

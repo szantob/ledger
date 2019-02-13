@@ -1,54 +1,50 @@
-const data = ledgerData();
-
-const dataRoot = {};
-dataRoot.ledger = null;
-dataRoot.data = [];
-dataRoot.hash = null;
-dataRoot.signer = null;
-dataRoot.signature = null;
+const data = ledgerData(forge);
 
 var activeKey = null;
 var signer = null;
 
-const setLedger = function(event){
-    //data.setLedger(event.valueOf().toString());  //TODO
-    dataRoot.ledger = event.valueOf().toString();
+const onLedgerChanged = function(event){      //TODO never called
+    const name = event.valueOf().toString();
+    data.setLedger(name);
+    console.log("[INFO] Ledger set to \""+name+"\"");
 };
-const openFile = function (event) {
+const onFileOpened = function (event) {
     const input = event.target;
     const reader = new FileReader();
     reader.onload = function () {
-        //data.appendJSON(reader.result);
-        const root = JSON.parse(reader.result);
-        console.log("File parseing...");
-        console.log(root.data.length + " records parsed");
-        if (dataRoot.ledger == null) {
-            dataRoot.ledger = root.ledger;
-        }//TODO Error handling
-        for (var i in root.data) {
-            const element = root.data[i];
-            dataRoot.data.push(element);
-            insertRow(element, dataRoot.data.indexOf(element));
+        const newData = ledgerData(forge);
+        console.log("File parsing...");
+        if(!newData.ledgerDataFromJSON(reader.result)){
+            console.log("Parse error");
+            return;
         }
+        data.setLedger(newData.getLedger());
+        console.log("[INFO] Ledger set to \""+name+"\"");
+        for (var i = 0; i<newData.dataLength(); i++) {
+            const element = newData.getData(i);
+            const id = data.addData(element);
+            insertRow(element, id);
+        }
+        console.log(newData.dataLength() + " records parsed");
         console.log("File parse success");
     };
     reader.readAsText(input.files[0]);
 };
-const openKey = function (event) {
+const onKeyOpened = function (event) {
     const input = event.target;
     const pki = forge.pki;
     const reader = new FileReader();
     reader.onload = function () {
         const keyRoot = JSON.parse(reader.result);
-        activeKey = pki.privateKeyFromPem(keyRoot.key.toString());
+        activeKey = keyRoot.key.toString();
         signer = keyRoot.name;
-        console.log("Key parse success");
-        console.log("Username: " + keyRoot.name);
+        console.log("[INFO] Key parse success");
+        console.log("[INFO] ->Username: \"" + keyRoot.name + "\"");
     };
     reader.readAsText(input.files[0]);
 };
-const add = function(){
-    if(!readRow()) alert("Hiányos bemenet")
+const onAddButtonPressed = function(){
+    if(!readRow()) alert("Hiányos bemenet");
 };
 const readRow = function () {    //bugos az input
     var element = {};
@@ -60,8 +56,9 @@ const readRow = function () {    //bugos az input
     if((element.osszeg = $("#in_osszeg").val().toString()) === "") return false;
     if((element.fkvnev = $("#in_fkvnev").val().toString()) === "") return false;
     if((element.ktghely = $("#in_ktghely").val().toString()) === "") return false;
-    dataRoot.data.push(element);
-    insertRow(element, dataRoot.data.indexOf(element));
+    const id = data.addData(element);
+    insertRow(element, id);
+    return true;
 };
 const insertRow = function (element, index) {
     const table = document.getElementById("table");
@@ -75,10 +72,10 @@ const insertRow = function (element, index) {
     row.insertCell(5).innerText = element.osszeg;
     row.insertCell(6).innerText = element.fkvnev;
     row.insertCell(7).innerText = element.ktghely;
-    row.innerHTML += "<td class='editor'><button type='button' onclick='del(\"+index+\")'>Töröl</button></td>";
+    row.innerHTML += "<td class='editor'><button type='button' onclick='onDeleteButtonPressed("+index+")'>Töröl</button></td>";
 };
 
-const preview = function () {
+const onPreviewButtonPressed = function () {
     if(!check()){
         alert("Formátum hiba");
         return;
@@ -87,52 +84,58 @@ const preview = function () {
     $("#d_signer").show();
     $(".editor").hide();
 };
-const editorMode = function () {
+const onEditorModeButtonPressed = function () {
     $("#d_editor").show();
     $("#d_signer").hide();
     $(".editor").show();
 };
-const save = function () {
+const onSaveButtonPressed = function () {
     hash();
     var a = document.createElement("a");
-    var file = new Blob([JSON.stringify(dataRoot)], {type: 'text/plain'});
+    var file = new Blob([data.toString()], {type: 'text/plain'});
     a.href = URL.createObjectURL(file);
     a.download = 'json.txt';
     a.click();
 };
-const del = function (index) {
-    dataRoot.data[index] = null;
+const onDeleteButtonPressed = function (index) {
+    console.log("[INFO] Delete row "+index);
+    data.nullData(index);
     $("#row_" + index).hide();
 };
 const check = function(){
-    if(dataRoot.ledger === null) return false;
-    if(dataRoot.data.length === 0) return false;
+    if(data.getLedger() === null){
+        console.log("[ERROR] Ledger does not set");
+        return false;
+    }
+    if(!data.hasData()){
+        console.log("[ERROR] No data");
+        return false;
+    }
     return true;
-}
-const hash = function () {
-    var md = forge.md.sha256.create();
-    md.update(dataRoot.ledger + dataRoot.data);
-    dataRoot.hash = md.digest().toHex();
 };
-const sign = function () {
+const hash = function () {
+    data.hasData();
+};
+const onSignButtonPressed = function () {
     hash();
     if (activeKey == null) {
         alert("Aláíró kulcs nincs megadva");
         return;
     }
-    const md = forge.md.sha1.create();
-    md.update(dataRoot.hash, 'utf8');
-    dataRoot.signer = signer;
-    dataRoot.signature = activeKey.sign(md).toString('ascii');
 
-    var file = new Blob([JSON.stringify(dataRoot)], {type: 'text/json'});
+    if(data.signLedger(signer,activeKey) === null){
+        console.log("[ERROR] Document sign failure");
+        return;
+    }
 
-    var formData = new FormData();
+    const file = new Blob([data.toString()], {type: 'text/json'});
+
+    const formData = new FormData();
     formData.append('file', file, 'transaction.json');
-    var request = new XMLHttpRequest();
+    const request = new XMLHttpRequest();
     request.onreadystatechange = function () {
         if (request.readyState === 4 && request.status === 200) {
-            console.log("Transaction sent");
+            console.log("[INFO] Transaction sent");
             onSuccess(request.response)
         }
     };
@@ -140,7 +143,7 @@ const sign = function () {
     request.send(formData);
 
     const onSuccess = function (response) {
-        var a = document.createElement("a");
+        const a = document.createElement("a");
         a.href = URL.createObjectURL(file);
         a.download = 'transaction.json';
         a.click();
@@ -149,5 +152,47 @@ const sign = function () {
 
 
 $(document).ready(function () {
-    editorMode();
+    console.log("[INFO] Window loaded");
+    onEditorModeButtonPressed();
+
+    const xmlhttp = new XMLHttpRequest();
+    const url = "/api/schema";
+
+    xmlhttp.onreadystatechange = function() {
+        if (this.readyState === 4 && this.status === 200) {
+            console.log("[INFO] schema.json loaded");
+            const schema = JSON.parse(this.responseText);
+            for(var i in schema.ledger){
+                const name = schema.ledger[i];
+                $('#sel_ledger').append('<option value="'+name+'">'+name+'</option>');
+            }
+            $('#sel_ledger').append('<option onclick="onNewLedger()">Új..</option>');
+            for(var i in schema.tagSchema.forras){
+                const name = schema.tagSchema.forras[i];
+                $('#in_forras').append('<option value="'+name+'">'+name+'</option>');
+            }
+            $('#in_forras').append('<option onclick="onNewLedger()">Új..</option>');
+            for(var i in schema.tagSchema.deviza){
+                const name = schema.tagSchema.deviza[i];
+                $('#in_deviza').append('<option value="'+name+'">'+name+'</option>');
+            }
+            $('#in_deviza').append('<option onclick="onNewLedger()">Új..</option>');
+            for(var i in schema.tagSchema.fkvnev){
+                const name = schema.tagSchema.fkvnev[i];
+                $('#in_fkvnev').append('<option value="'+name+'">'+name+'</option>');
+            }
+            $('#in_fkvnev').append('<option onselect="onNewLedger()">Új..</option>');
+            for(var i in schema.tagSchema.ktghely){
+                const name = schema.tagSchema.ktghely[i];
+                $('#in_ktghely').append('<option value="'+name+'">'+name+'</option>');
+            }
+            $('#in_ktghely').append('<option onclick="onNewLedger()">Új..</option>');
+        }
+    };
+    xmlhttp.open("GET", url, true);
+    xmlhttp.send();
 });
+
+const onNewLedger = function(){
+    alert("TODO");
+};

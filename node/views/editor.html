@@ -5,12 +5,11 @@
     <title>Title</title>
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/node-forge@0.7.0/dist/forge.min.js"></script>
+    <script type="application/javascript" src="/javascripts/ledgerData.js"></script>
     <script type="application/javascript" src="/javascripts/editor.js"></script>
 </head>
 <body>
-<select id="ledger" onchange='setLedger(event)'>
-    <option value="Main">Main</option>
-</select>
+<select id="sel_ledger" onchange='onLedgerChanged("main")'></select>
 <table id='table' width="100%" border="1px">
     <thead>
     <tr>
@@ -27,33 +26,15 @@
         </td>
     </tr>
     <tr class="editor">
-        <td>
-            <select id="in_forras">
-                <option value="Központi állami támogatás">Központi állami támogatás</option>
-            </select>
-        </td>
+        <td><select id="in_forras"></select></td>
         <td><input id="in_datum" type='date'></td>
         <td><input id="in_bizonyl" type='text'></td>
         <td><input id="in_jogcim" type='text'></td>
-        <td>
-            <select id="in_deviza">
-                <option value="HUF">HUF</option>
-            </select>
-        </td>
+        <td><select id="in_deviza"></select></td>
         <td><input id="in_osszeg" type='number'></td>
-        <td>
-            <select id="in_fkvnev">
-                <option value="Adott előlegek">Adott előlegek</option>
-            </select>
-        </td>
-        <td>
-            <select id="in_ktghely">
-                <option value="Politikai">Politikai</option>
-            </select>
-        </td>
-        <td>
-            <button type='button' onclick='add()'>Hozzáad</button>
-        </td>
+        <td><select id="in_fkvnev"></select></td>
+        <td><select id="in_ktghely"></select></td>
+        <td><button type='button' onclick='onAddButtonPressed()'>Hozzáad</button></td>
     </tr>
     </thead>
     <tbody>
@@ -61,14 +42,14 @@
     </tbody>
 </table>
 <div id="d_editor">
-    <button id='btn_save' onclick='save()'>Mentés</button>
-    <button id='btn_preview' onclick='preview()'>Előnézet</button>
-    <input type='file' accept='text/json' onchange='openFile(event)'>
+    <button id='btn_save' onclick='onSaveButtonPressed()'>Mentés</button>
+    <button id='btn_preview' onclick='onPreviewButtonPressed()'>Előnézet</button>
+    <input type='file' accept='text/json' onchange='onFileOpened(event)'>
 </div>
 <div id="d_signer">
-    <button id='btn_back' onclick='editorMode()'>Vissza</button>
-    <button id='btn_sign' onclick='sign(event)'>Aláír</button>
-    <input type='file' accept='text/json' onchange='openKey(event)'>
+    <button id='btn_back' onclick='onEditorModeButtonPressed()'>Vissza</button>
+    <button id='btn_sign' onclick='onSignButtonPressed()'>Aláír</button>
+    <input type='file' accept='text/json' onchange='onKeyOpened(event)'>
 </div>
 </body>
 </html>
