@@ -1,45 +1,41 @@
-const data = ledgerData(forge);
-
-var activeKey = null;
-var signer = null;
+const data = ledgerData();
+const key = keyData(forge);
 
 const onLedgerChanged = function(event){      //TODO never called
     const name = event.valueOf().toString();
     data.setLedger(name);
-    console.log("[INFO] Ledger set to \""+name+"\"");
+    console.log("[INFO][DATA] Ledger set to \""+name+"\"");
 };
 const onFileOpened = function (event) {
     const input = event.target;
     const reader = new FileReader();
     reader.onload = function () {
         const newData = ledgerData(forge);
-        console.log("File parsing...");
+        console.log("[INFO][FILE] File parsing...");
         if(!newData.ledgerDataFromJSON(reader.result)){
-            console.log("Parse error");
+            console.log("[WARN][FILE] Parse error");
             return;
         }
         data.setLedger(newData.getLedger());
-        console.log("[INFO] Ledger set to \""+name+"\"");
+        console.log("[INFO][DATA] Ledger set to \""+name+"\"");
         for (var i = 0; i<newData.dataLength(); i++) {
             const element = newData.getData(i);
             const id = data.addData(element);
             insertRow(element, id);
         }
-        console.log(newData.dataLength() + " records parsed");
-        console.log("File parse success");
+        console.log("[INFO][FILE] File parse success");
+        console.log("[INFO][FILE] ->"+newData.dataLength() + " records parsed");
     };
     reader.readAsText(input.files[0]);
 };
 const onKeyOpened = function (event) {
     const input = event.target;
-    const pki = forge.pki;
     const reader = new FileReader();
     reader.onload = function () {
-        const keyRoot = JSON.parse(reader.result);
-        activeKey = keyRoot.key.toString();
-        signer = keyRoot.name;
-        console.log("[INFO] Key parse success");
-        console.log("[INFO] ->Username: \"" + keyRoot.name + "\"");
+        if(key.readFromJSON(reader.result)){
+            console.log("[INFO][AUTH] Key parse success");
+            console.log("[INFO][AUTH]  ->Username: \"" + key.getUsername() + "\"");
+        }else console.log("[WARN][AUTH] Key parse failure");
     };
     reader.readAsText(input.files[0]);
 };
@@ -83,59 +79,56 @@ const onPreviewButtonPressed = function () {
     $("#d_editor").hide();
     $("#d_signer").show();
     $(".editor").hide();
+    console.log("[INFO][WINDOW] Changed to PREVIEW");
 };
 const onEditorModeButtonPressed = function () {
     $("#d_editor").show();
     $("#d_signer").hide();
     $(".editor").show();
+    console.log("[INFO][WINDOW] Changed to EDIT");
 };
 const onSaveButtonPressed = function () {
-    hash();
-    var a = document.createElement("a");
-    var file = new Blob([data.toString()], {type: 'text/plain'});
+    const a = document.createElement("a");
+    const file = new Blob([data.toString()], {type: 'text/plain'});
     a.href = URL.createObjectURL(file);
     a.download = 'json.txt';
     a.click();
 };
 const onDeleteButtonPressed = function (index) {
-    console.log("[INFO] Delete row "+index);
+    console.log("[INFO][DATA] Delete row "+index);
     data.nullData(index);
     $("#row_" + index).hide();
 };
 const check = function(){
     if(data.getLedger() === null){
-        console.log("[ERROR] Ledger does not set");
+        console.log("[ERROR][DATA] Ledger does not set");
         return false;
     }
     if(!data.hasData()){
-        console.log("[ERROR] No data");
+        console.log("[ERROR][DATA] No data");
         return false;
     }
     return true;
 };
-const hash = function () {
-    data.hasData();
-};
 const onSignButtonPressed = function () {
-    hash();
-    if (activeKey == null) {
-        alert("Aláíró kulcs nincs megadva");
-        return;
-    }
-
-    if(data.signLedger(signer,activeKey) === null){
-        console.log("[ERROR] Document sign failure");
+    const signer = key.getUsername();
+    data.setTimestamp();
+    const signature = key.sign();
+    if(signature !== undefined){
+        data.setSignature(signer,signature);
+        console.log("[INFO][AUTH] Signing successful");
+    }else{
+        console.log("[ERROR][AUTH] Signing failed");
+        alert("Aláírás nem sikerült");
         return;
     }
 
     const file = new Blob([data.toString()], {type: 'text/json'});
-
     const formData = new FormData();
     formData.append('file', file, 'transaction.json');
     const request = new XMLHttpRequest();
     request.onreadystatechange = function () {
         if (request.readyState === 4 && request.status === 200) {
-            console.log("[INFO] Transaction sent");
             onSuccess(request.response)
         }
     };
@@ -143,16 +136,18 @@ const onSignButtonPressed = function () {
     request.send(formData);
 
     const onSuccess = function (response) {
+        console.log("[INFO][COMM] Transaction sent");
         const a = document.createElement("a");
         a.href = URL.createObjectURL(file);
         a.download = 'transaction.json';
         a.click();
+        alert("Elküldve feldolgozásra");
     };
 };
 
 
 $(document).ready(function () {
-    console.log("[INFO] Window loaded");
+    console.log("[INFO][WINDOW] Loaded");
     onEditorModeButtonPressed();
 
     const xmlhttp = new XMLHttpRequest();
@@ -160,7 +155,7 @@ $(document).ready(function () {
 
     xmlhttp.onreadystatechange = function() {
         if (this.readyState === 4 && this.status === 200) {
-            console.log("[INFO] schema.json loaded");
+            console.log("[INFO][WINDOW] schema.json loaded");
             const schema = JSON.parse(this.responseText);
             for(var i in schema.ledger){
                 const name = schema.ledger[i];

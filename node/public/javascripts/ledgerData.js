@@ -1,5 +1,4 @@
-const ledgerData = function(dForge){
-    const forge = dForge;
+const ledgerData = function(){
     const publ = {};
     const priv = {};
 
@@ -8,13 +7,7 @@ const ledgerData = function(dForge){
     priv.hash = null;
     priv.signer = null;
     priv.signature = null;
-
-    const valuesToString = function(){
-        return JSON.stringify(priv.ledgerName) + JSON.stringify(priv.dataArray);
-    };
-    const normalizeData = function(){
-        //TODO implement later
-    };
+    priv.timestamp = null;
 
     publ.setLedger = function(ledger){
         priv.ledgerName = ledger;
@@ -22,64 +15,40 @@ const ledgerData = function(dForge){
     publ.getLedger = function(){
         return priv.ledgerName;
     };
-    publ.ledgerDataFromJSON = function(jsonString){
+    publ.ledgerDataFromJSON = (jsonString) => {
         const dataRoot = JSON.parse(jsonString);
         if(dataRoot.ledgerName === null) return false;
         if(dataRoot.data === null) return false;
 
         if(dataRoot.ledgerName !== null) priv.ledgerName = dataRoot.ledgerName;
         priv.dataArray = dataRoot.data;
-        priv.hash = null;
-        priv.signature = null;
-        priv.signer = null;
+        priv.hash = dataRoot.hash;
+        priv.signature = dataRoot.signature;
+        priv.signer = dataRoot.signer;
+        priv.timestamp = dataRoot.timestamp;
         return true;
     };
-    publ.addData = function(element){
+
+    publ.addData = (element) => {
         priv.dataArray.push(element);
-        return priv.dataArray.indexOf(element)
+        return priv.dataArray.indexOf(element);
     };
-    publ.getData = function(id){
-        return priv.dataArray[id];
-    };
-    publ.nullData = function(id){
-        priv.dataArray[id] = null;
-    };
-    publ.hasData = function(){
-        return publ.dataLength() > 0;
-    };
-    publ.dataLength = function(){
-        return priv.dataArray.length;
-    };
-    publ.calculateHash = function(){
-        const md = forge.md.sha256.create();
-        md.update(valuesToString());
-        priv.hash = md.digest().toHex();
-        return priv.hash;
-    };
-    publ.signLedger = function(signer,keyString){
-        const pki = forge.pki;
-        const md = forge.md.sha256.create();
-        priv.signer = signer;
-        key = pki.privateKeyFromPem(keyString);
-        md.update(valuesToString(), 'utf8');
-        priv.signature = key.sign(md).toString('ascii');
-        return priv.signature;
-    };
-    publ.getSigner = function(){
-        return priv.signer;
-    };
-    publ.verifySignature = function(key){
-        const pki = forge.pki;
-        const md = forge.md.sha256.create();
-        md.update(valuesToString(), 'utf8');
-        return (key.verify(md.digest().bytes(), priv.signature));
-    };
-    publ.toString = function(){
-        return JSON.stringify(priv);
-    };
+    publ.getData = (id) => {return priv.dataArray[id]};
+    publ.nullData = (id) => {priv.dataArray[id] = null};
+    publ.hasData = () => {return publ.dataLength() > 0};
+    publ.dataLength = () => {return priv.dataArray.length};
+
+    publ.setTimestamp = () => {priv.timestamp = new Date().getTime()};
+    publ.getProtectableData = () => {return JSON.stringify(priv.ledgerName) + JSON.stringify(priv.dataArray) + JSON.stringify(priv.timestamp)};
+    publ.setSignature = (name,sign) => {priv.signer = name; priv.signature = sign};
+    publ.getSignature = () => {return priv.signature};
+    publ.getSigner = () => {return priv.signer};
+
+    publ.toString = () => {return JSON.stringify(priv)};
 
     return publ;
 };
+
 if(typeof module !== "undefined"){
     if(typeof module.exports !== "undefined"){
         module.exports = ledgerData;

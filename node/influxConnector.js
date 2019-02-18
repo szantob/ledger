@@ -5,6 +5,9 @@ const forge = require('node-forge');
 const client = new influx("http://nodejs:"+passwd+"@localhost:8086/db_grafana");
 const schema = JSON.parse(fs.readFileSync('./lib/schema.json', 'utf8'));
 
+const ledgerData = require("./public/javascripts/ledgerData");
+const keyData = require("./public/javascripts/keyData");
+
 var passwd;
 fs.readFile("./keys/.pw_influx_nodejs", function(err, data) {
     if(err) return;
@@ -53,7 +56,20 @@ const influxProcess = function(dataRoot){
     }
     return recordNumber;
 };
-const auth = function(data){
+const getKey = function (signer) {
+    const signatureDB = JSON.parse(fs.readFileSync('./keys/keys.json', 'utf8'));
+    for(var i in signatureDB){
+        if(signatureDB[i].name === signer){
+            if(signatureDB[i].active){
+                console.log("[INFO][AUTH] Signer: " +signer);
+                return signatureDB[i];
+            }
+            console.log("[ERROR][AUTH] Inactive signer");
+        }
+    }
+    console.log("[ERROR][AUTH] Invalid signer");
+};
+/*const auth = function(data){
     const sha256 = forge.md.sha256.create();
     sha256.update(data.ledger + data.data);
     const signer = data.signer;
@@ -86,13 +102,24 @@ const auth = function(data){
         console.log("Unauthorised");
         return false;
     }
-};
+};*/
 const upload = function(file){
-    console.log("File processing");
-    const data = JSON.parse(fs.readFileSync(file.path, 'utf8'));
-    if(!auth(data)){
-        console.log("Processing failed");
-        return false;
+    console.log("[INFO][INFLUX] File processing");
+    const uploadedData = ledgerData(forge);
+    uploadedData.ledgerDataFromJSON(fs.readFileSync(file.path, 'utf8'));
+    const signer = uploadedData.getSigner();
+    const signature = uploadedData.getSignature();
+    const valuableData = uploadedData.getProtectableData();
+    const key = keyData(forge);
+    const keyJSON = JSON.stringify(getKey(signer));
+    if(!key.readFromJSON(keyJSON)){
+        console.log("[ERROR][AUTH] No key found");
+        return;
+    }
+
+    if(!key.verify(valuableData,signature)){
+        console.log("[ERROR][AUTH] Unauthorized");
+        return;
     }else{
         const newRecords = influxProcess(data);
         if(newRecords > 0){

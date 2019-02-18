@@ -1,0 +1,45 @@
+{
+  "ledger":"main",
+  "data":[
+    {
+      "forras": "Központi állami tám.",
+      "datum": "4/5/2018",
+      "bizonyl": "EINV0000000787",
+      "jogcim": "Online újság hirdetés",
+      "deviza": "HUF",
+      "osszeg": 2952750,
+      "fkvnev": "Adott előlegek",
+      "ktghely": "Politikai"
+    },
+    {
+      "forras": "Központi állami tám.",
+      "datum": "08/04/2018",
+      "bizonyl": "E-2018-52",
+      "jogcim": "Rendezvénytechnika eszközök vissza",
+      "deviza": "HUF",
+      "osszeg": -1250000,
+      "fkvnev": "Adott előlegek",
+      "ktghely": "Politikai"
+    },
+    {
+      "forras": "Központi állami tám.",
+      "datum": "3/14/2018",
+      "bizonyl": "03/KI/011",
+      "jogcim": "Bilincs",
+      "deviza": "HUF",
+      "osszeg": 2097,
+      "fkvnev": "Egy éven belül elhasználódó anyagi eszközök költségei",
+      "ktghely": "Politikai"
+    },
+    {
+      "forras": "Központi állami tám.",
+      "datum": "4/30/2018",
+      "bizonyl": "MOM-SZ3",
+      "jogcim": "Áprilisi SZJA természetbeni 2018",
+      "deviza": "HUF",
+      "osszeg": 43365,
+      "fkvnev": "SZJA Természetbeni",
+      "ktghely": "Politikai"
+    }
+  ]
+}

@@ -4,6 +4,7 @@ var fs = require('fs');
 const influx = require("../influxConnector");
 const router = express.Router();
 
+
 /* GET home page. */
 router.get('/ping', function (req, res, next) {
 
