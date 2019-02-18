@@ -4,7 +4,6 @@ const ledgerData = function(){
 
     priv.ledgerName = null;
     priv.dataArray = [];
-    priv.hash = null;
     priv.signer = null;
     priv.signature = null;
     priv.timestamp = null;
@@ -17,12 +16,12 @@ const ledgerData = function(){
     };
     publ.ledgerDataFromJSON = (jsonString) => {
         const dataRoot = JSON.parse(jsonString);
-        if(dataRoot.ledgerName === null) return false;
-        if(dataRoot.data === null) return false;
+        if(dataRoot.ledgerName === undefined) return false;
+        if(dataRoot.dataArray === undefined) return false;
 
         if(dataRoot.ledgerName !== null) priv.ledgerName = dataRoot.ledgerName;
-        priv.dataArray = dataRoot.data;
-        priv.hash = dataRoot.hash;
+
+        priv.dataArray = dataRoot.dataArray;
         priv.signature = dataRoot.signature;
         priv.signer = dataRoot.signer;
         priv.timestamp = dataRoot.timestamp;
@@ -39,7 +38,11 @@ const ledgerData = function(){
     publ.dataLength = () => {return priv.dataArray.length};
 
     publ.setTimestamp = () => {priv.timestamp = new Date().getTime()};
-    publ.getProtectableData = () => {return JSON.stringify(priv.ledgerName) + JSON.stringify(priv.dataArray) + JSON.stringify(priv.timestamp)};
+    publ.getProtectableData = () => {
+        if(priv.timestamp === null) publ.setTimestamp();
+        const datastring = JSON.stringify(priv.ledgerName) + JSON.stringify(priv.dataArray) + JSON.stringify(priv.timestamp);
+        return datastring;
+    };
     publ.setSignature = (name,sign) => {priv.signer = name; priv.signature = sign};
     publ.getSignature = () => {return priv.signature};
     publ.getSigner = () => {return priv.signer};

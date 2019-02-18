@@ -1,6 +1,6 @@
 {
-  "ledger":"main",
-  "data":[
+  "ledgerName":"main",
+  "dataArray":[
     {
       "forras": "Központi állami tám.",
       "datum": "4/5/2018",

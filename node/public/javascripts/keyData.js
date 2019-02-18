@@ -19,41 +19,32 @@ const keyData = function (dForge){
         if(dataRoot.publ === null) return false;
         if(dataRoot.name === null) return false;
 
+        priv.name = dataRoot.name;
+        priv.publ = dataRoot.publ;
+        pubKey = forge.pki.publicKeyFromPem(priv.publ);
+
         if(dataRoot.email !== null){
             priv.email = dataRoot.email;
             priv.firstn = dataRoot.firstn;
             priv.lastn = dataRoot.lastn;
         }
 
-        priv.name = dataRoot.name;
-        priv.publ = dataRoot.publ;
-        pubKey = forge.pki.publicKeyFromPem(priv.publ);
-
         if(dataRoot.priv !== undefined){
             privKeyS = dataRoot.priv;
             privKey = forge.pki.privateKeyFromPem(privKeyS);
         }
+        console.log("[INFO][DATA] Data: "+publ.toString() ); //TODO DEBUG
         return true;
     };
     publ.unsafeWriteToJSON = function(){
         priv.priv = privKeyS;
-        JSON.stringify(priv);
+        const json = JSON.stringify(priv);
         priv.priv = null;
+        return json;
     };
     publ.safeWriteToJSON =function(){
-        JSON.stringify(priv);
-    };
-
-    var signString = (data) => {
-        var md = forge.md.sha256.create();
-        md.update(data, 'utf8');
-        var pss = forge.pss.create({
-            md: forge.md.sha256.create(),
-            mgf: forge.mgf.mgf1.create(forge.md.sha256.create()),
-            saltLength: 20
-        });
-        return new Buffer(this.myPrivKey.sign(md, pss), 'binary')
-            .toString('base64');
+        const json = JSON.stringify(priv);
+        return json;
     };
     publ.sign = function(dataString){
         const md = forge.md.sha256.create();

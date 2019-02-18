@@ -113,7 +113,7 @@ const check = function(){
 const onSignButtonPressed = function () {
     const signer = key.getUsername();
     data.setTimestamp();
-    const signature = key.sign();
+    const signature = key.sign(data.getProtectableData());
     if(signature !== undefined){
         data.setSignature(signer,signature);
         console.log("[INFO][AUTH] Signing successful");
