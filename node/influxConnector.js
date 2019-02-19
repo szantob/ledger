@@ -95,6 +95,9 @@ function influxParse(data,ledger,signer,client){
             "jogcim": data.jogcim,
             "osszeg": data.osszeg,
     }).queue();
+    console.log(data.bizszam);
+    console.log(data.forras);
+    console.log(data.ktghely);
 }
 function getRandomNanos() {
     return Math.floor(Math.random() * Math.floor(1000000000));

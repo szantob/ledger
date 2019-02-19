@@ -2,9 +2,9 @@
   "ledgerName":"main",
   "dataArray":[
     {
-      "forras": "Központi állami tám.",
+      "forras": "Központi állami támogatás",
       "datum": "4/5/2018",
-      "bizonyl": "EINV0000000787",
+      "bizszam": "EINV0000000787",
       "jogcim": "Online újság hirdetés",
       "deviza": "HUF",
       "osszeg": 2952750,
@@ -12,9 +12,9 @@
       "ktghely": "Politikai"
     },
     {
-      "forras": "Központi állami tám.",
+      "forras": "Központi állami támogatás",
       "datum": "08/04/2018",
-      "bizonyl": "E-2018-52",
+      "bizszam": "E-2018-52",
       "jogcim": "Rendezvénytechnika eszközök vissza",
       "deviza": "HUF",
       "osszeg": -1250000,
@@ -22,9 +22,9 @@
       "ktghely": "Politikai"
     },
     {
-      "forras": "Központi állami tám.",
+      "forras": "Központi állami támogatás",
       "datum": "3/14/2018",
-      "bizonyl": "03/KI/011",
+      "bizszam": "03/KI/011",
       "jogcim": "Bilincs",
       "deviza": "HUF",
       "osszeg": 2097,
@@ -32,9 +32,9 @@
       "ktghely": "Politikai"
     },
     {
-      "forras": "Központi állami tám.",
+      "forras": "Központi állami támogatás",
       "datum": "4/30/2018",
-      "bizonyl": "MOM-SZ3",
+      "bizszam": "MOM-SZ3",
       "jogcim": "Áprilisi SZJA természetbeni 2018",
       "deviza": "HUF",
       "osszeg": 43365,
