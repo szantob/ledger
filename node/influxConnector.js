@@ -68,22 +68,22 @@ const influxProcess = function(data){
     for(var i=0; i<data.dataLength();i++){
         if(data.getData(i) !== null) {
             const record = data.getData(i);
-            console.log("D[recA] "+JSON.stringify(record)); //TODO DEBUG
             influxParse(record,ledger,signer,client);
             recordNumber++;
         }
     }
     if(recordNumber > 0){
-        client.syncWrite()
-            .then(() => console.info('sync write queue success'))
-            .catch(err => console.error(`sync write queue fail, ${err.message}`));
+        const result = client.syncWrite()
+            .then(() => console.info('[INFO][INFL] Sync write queue success'))
+            .catch(err => console.error(`[ERROR][INFL] Sync write queue fail, ${err.message}`));
     }
     return recordNumber;
 };
 function influxParse(data,ledger,signer,client){
-    const date = new Date(data.date);
+    const date = new Date(data.datum);
+
     client.write(ledger)
-        .time(date.valueOf()*1000000)
+        .time(date.valueOf()*1000000+getRandomNanos()) //Not important, but better if the timestamp is unique
         .tag({
             "signer": signer,
             "forras": data.forras,
@@ -95,5 +95,8 @@ function influxParse(data,ledger,signer,client){
             "jogcim": data.jogcim,
             "osszeg": data.osszeg,
     }).queue();
+}
+function getRandomNanos() {
+    return Math.floor(Math.random() * Math.floor(1000000000));
 }
 module.exports.upload = upload;
