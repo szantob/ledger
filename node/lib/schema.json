@@ -9,6 +9,7 @@
   "jogcim":"s"
  },
  "tagSchema":{
+  "signer":"s",
   "forras":[
    "Központi állami támogatás",
    "Nem költségvetési támogatás",

@@ -58,13 +58,19 @@ const upload = function(file){
 };
 const influxProcess = function(data){
     const signer = data.getSigner();
+    const ledger = data.getLedger();
     console.log("D[sign] "+signer);
     var recordNumber = 0;
+    console.log("[INFO][INFL] Measurement: "+ledger+", Signer: "+signer);
+    client.schema(ledger, schema.fieldSchema, schema.tagSchema, {
+        stripUnknown: true,
+    });
     for(var i=0; i<data.dataLength();i++){
         if(data.getData(i) !== null) {
             const record = data.getData(i);
-            console.log("D[recA] "+record);
-            if(influxParse(record,data.getLedger())) recordNumber++;
+            console.log("D[recA] "+JSON.stringify(record)); //TODO DEBUG
+            influxParse(record,ledger,signer,client);
+            recordNumber++;
         }
     }
     if(recordNumber > 0){
@@ -74,30 +80,20 @@ const influxProcess = function(data){
     }
     return recordNumber;
 };
-function influxParse(data,ledger){
-    client.schema(ledger, schema.fieldSchema, schema.tagSchema, {
-        stripUnknown: true,
-    });
-    console.log("Measurement: "+ledger);
-    for(var i=0;i<data.length;i++){
-        var date = new Date(data.date);
-        client.write(data.ledger)
-            .time(date.valueOf()*1000000)
-            .tag({
-                "forras": data.forras,
-                "deviza": data.deviza,
-                "fkvnev": data.fkvnev,
-                "ktghely":data.ktghely,
-            }).field({
+function influxParse(data,ledger,signer,client){
+    const date = new Date(data.date);
+    client.write(ledger)
+        .time(date.valueOf()*1000000)
+        .tag({
+            "signer": signer,
+            "forras": data.forras,
+            "deviza": data.deviza,
+            "fkvnev": data.fkvnev,
+            "ktghely":data.ktghely,
+        }).field({
             "bizszam":data.bizszam,
             "jogcim": data.jogcim,
             "osszeg": data.osszeg,
-        }).then(() =>{
-            console.info('write point success');
-            return true;
-        }).catch(console.error);
-        return success;
-    }
-    return true;
+    }).queue();
 }
 module.exports.upload = upload;
